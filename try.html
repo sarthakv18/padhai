@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Input Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .input-section {
+            margin-bottom: 20px;
+        }
+        .course-input {
+            margin-bottom: 10px;
+        }
+        .dropdown-container {
+            position: relative;
+            width: 300px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 5px;
+        }
+        .dropdown {
+            display: none;
+            position: absolute;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            background-color: #fff;
+        }
+        .dropdown-item {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .dropdown-item:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+
+<h2>SPI Calculator</h2>
+
+<div class="input-section">
+    <label for="courseNumber">Enter number of courses: </label>
+    <input type="number" id="courseNumber" min="1" max="20">
+    <button onclick="generateInputFields()">Generate Courses</button>
+</div>
+
+<form id="courseForm">
+    <!-- Dynamically generated course inputs will go here -->
+</form>
+
+<button onclick="calculateGPA()">Calculate GPA</button>
+
+<h3 id="result"></h3>
+
+<script>
+  const coursesData = [
+    {"Course Name/Group Name": "ESC201", "Credits": 14},
+    {"Course Name/Group Name": "MSO202", "Credits": 6},
+    {"Course Name/Group Name": "MSO203", "Credits": 6},
+    {"Course Name/Group Name": "TA212", "Credits": 3},
+    {"Course Name/Group Name": "EE200", "Credits": 11},
+    {"Course Name/Group Name": "HSS", "Credits": 11},
+    {"Course Name/Group Name": "DSA", "Credits": 12}
+  ];
+
+  const grades = ['A', 'B+', 'B', 'C+', 'C', 'D+', 'D', 'F'];
+  let totalCourses = 0;
+
+  function generateInputFields() {
+    const courseForm = document.getElementById('courseForm');
+    const courseNumber = parseInt(document.getElementById('courseNumber').value);
+    courseForm.innerHTML = ''; // Clear previous inputs
+
+    if (courseNumber < 1 || courseNumber > 20) {
+      alert('Please enter a number between 1 and 20.');
+      return;
+    }
+
+    totalCourses = courseNumber;
+
+    for (let i = 0; i < courseNumber; i++) {
+      let div = document.createElement('div');
+      div.className = 'course-input';
+
+      // Course dropdown
+      let courseLabel = document.createElement('label');
+      courseLabel.textContent = `Course ${i + 1}: `;
+      div.appendChild(courseLabel);
+
+      let courseSelect = document.createElement('select');
+      courseSelect.name = 'course';
+      div.appendChild(courseSelect);
+
+      // Add options for course dropdown
+      coursesData.forEach(course => {
+        let option = document.createElement('option');
+        option.value = course["Course Name/Group Name"];
+        option.textContent = course["Course Name/Group Name"];
+        option.setAttribute('data-credits', course["Credits"]);
+        courseSelect.appendChild(option);
+      });
+
+      // Grade dropdown
+      let gradeLabel = document.createElement('label');
+      gradeLabel.textContent = ' Grade: ';
+      div.appendChild(gradeLabel);
+
+      let gradeSelect = document.createElement('select');
+      gradeSelect.name = 'grade';
+      grades.forEach(grade => {
+        let option = document.createElement('option');
+        option.value = grade;
+        option.textContent = grade;
+        gradeSelect.appendChild(option);
+      });
+      div.appendChild(gradeSelect);
+
+      // Credit display
+      let creditLabel = document.createElement('label');
+      creditLabel.textContent = ' Credits: ';
+      div.appendChild(creditLabel);
+
+      let creditInput = document.createElement('input');
+      creditInput.type = 'number';
+      creditInput.name = 'credit';
+      creditInput.min = '2';
+      creditInput.max = '14';
+      creditInput.readOnly = true; // Read-only, auto-populated
+      div.appendChild(creditInput);
+
+      // Automatically update credit input based on course selected
+      courseSelect.addEventListener('change', function () {
+        let selectedCourse = courseSelect.options[courseSelect.selectedIndex];
+        creditInput.value = selectedCourse.getAttribute('data-credits');
+      });
+
+      // Set initial credit value for first course
+      let initialCourse = courseSelect.options[courseSelect.selectedIndex];
+      if (initialCourse) creditInput.value = initialCourse.getAttribute('data-credits');
+
+      courseForm.appendChild(div);
+    }
+  }
+
+  function calculateGPA() {
+    const gradePoints = {
+      'A': 10.0,
+      'B+': 9.0,
+      'B': 8.0,
+      'C+': 7.0,
+      'C': 6.0,
+      'D+': 5.0,
+      'D': 4.0,
+      'F': 0.0
+    };
+    
+    let totalWeightedPoints = 0;
+    let totalCredits = 0;
+    let courseForm = document.getElementById('courseForm');
+
+    for (let i = 0; i < totalCourses; i++) {
+      let grade = courseForm.elements['grade'][i].value;
+      let credit = parseInt(courseForm.elements['credit'][i].value);
+      totalWeightedPoints += gradePoints[grade] * credit;
+      totalCredits += credit;
+    }
+
+    let weightedGPA = totalWeightedPoints / totalCredits;
+    if (weightedGPA < 5) {
+        resultText = `Your GPA is: ${weightedGPA.toFixed(2)} lgg gye lode!!`;
+    } else if (weightedGPA < 7) {
+        resultText = `Your GPA is: ${weightedGPA.toFixed(2)} Agle sem pkka chapenge...`;
+    } else if (weightedGPA > 9) {
+        resultText = `Your GPA is: ${weightedGPA.toFixed(2)} Bhai khush rhh inn sbb mai kuchh ni rkha!!`;
+    } else {
+        resultText = `Your GPA is: ${weightedGPA.toFixed(2)}`;
+    }
+
+    document.getElementById('result').textContent = resultText;
+  }
+</script>
+
+</body>
+</html>
